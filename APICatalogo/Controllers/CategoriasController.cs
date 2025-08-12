@@ -21,24 +21,34 @@ namespace APICatalogo.Controllers
         [HttpGet("produtos")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
-            return _context.Categorias.Include(p => p.Produtos).ToList();
+            //return _context.Categorias.Include(p => p.Produtos).ToList();
+            return _context.Categorias.Include(p => p.Produtos).Where(c => c.CategoriaId <= 5).ToList();
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            return _context.Categorias.ToList();
+            return _context.Categorias.AsNoTracking().ToList();
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            try
+            {
+                var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
 
-            if (categoria == null)
-                return NotFound("Categoria não encontrada...");
+                if (categoria == null)
+                    return NotFound("Categoria não encontrada...");
 
-            return Ok(categoria);
+                return Ok(categoria);
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao tentar recuperar a categoria...");
+            }
+            
         }
 
         [HttpPost]
